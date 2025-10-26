@@ -1,45 +1,56 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
 import os
 import hashlib
-from flask import Flask, render_template, jsonify, request
-from flask_cors import CORS
-import mysql.connector
+import secrets # Added for generating secure passwords
+import string  # Added for generating secure passwords
+import urllib.parse # Added to parse the DATABASE_URL
 
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-# Example API endpoint
-@app.route('/api/test')
-def test():
-    return jsonify({"message": "Backend is working!"})
-
-app = Flask(__name__)
-CORS(app)
-
-# Database Configuration
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '',
-    'database': 'student_voting_system'
-}
-
+# ==========================================
+# PRODUCTION DATABASE CONFIGURATION
+# ==========================================
 def get_db_connection():
-    """Create and return a database connection"""
+    """Create and return a database connection using DATABASE_URL from environment variables"""
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
+        # Render provides the database connection URL in an environment variable
+        db_url = os.environ.get('DATABASE_URL')
+        if not db_url:
+            raise ValueError("DATABASE_URL environment variable is not set.")
+
+        # Parse the URL
+        url = urllib.parse.urlparse(db_url)
+        
+        connection = mysql.connector.connect(
+            host=url.hostname,
+            user=url.username,
+            password=url.password,
+            database=url.path[1:], # Remove the leading '/'
+            port=url.port or 3306
+        )
         return connection
     except Error as e:
         print(f"Error connecting to MySQL: {e}")
         return None
+
+# ==========================================
+# RENDER.COM DEPLOYMENT SETUP
+# ==========================================
+@app.route('/')
+def home():
+    # This can serve your main HTML file if you have one
+    return "Backend is running!"
+
+# Example API endpoint to confirm backend is live
+@app.route('/api/test')
+def test():
+    return jsonify({"message": "Backend API is working correctly!"})
+
 
 # ==========================================
 # STUDENT ROUTES
@@ -48,6 +59,7 @@ def get_db_connection():
 @app.route('/api/student/login', methods=['POST'])
 def student_login():
     """Student login endpoint - EMAIL BASED"""
+    connection = None
     try:
         data = request.json
         email = data.get('email')
@@ -85,13 +97,14 @@ def student_login():
         print(f"Login error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/student/vote', methods=['POST'])
 def cast_vote():
     """Cast a vote endpoint WITH BLOCKCHAIN-LIKE HASHING"""
+    connection = None
     try:
         data = request.json
         student_id = data.get('studentId')
@@ -141,11 +154,11 @@ def cast_vote():
         return jsonify({'success': True, 'message': 'Vote cast successfully and secured in chain'}), 200
     except Exception as e:
         print(f"Vote error: {e}")
-        if 'connection' in locals():
+        if connection:
             connection.rollback()
         return jsonify({'success': False, 'message': 'Failed to cast vote'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
@@ -156,6 +169,7 @@ def cast_vote():
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
     """Admin login endpoint"""
+    connection = None
     try:
         data = request.json
         username = data.get('username')
@@ -193,13 +207,14 @@ def admin_login():
         print(f"Admin login error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/admin/students', methods=['GET'])
 def get_all_students():
     """Get all students for admin"""
+    connection = None
     try:
         connection = get_db_connection()
         if not connection:
@@ -219,13 +234,14 @@ def get_all_students():
         print(f"Get students error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/admin/candidates-list', methods=['GET'])
 def get_all_candidates():
     """Get all candidates for admin"""
+    connection = None
     try:
         connection = get_db_connection()
         if not connection:
@@ -245,13 +261,14 @@ def get_all_candidates():
         print(f"Get candidates error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
             
 @app.route('/api/admin/add-student', methods=['POST'])
 def add_student():
     """Admin endpoint to add a new student"""
+    connection = None
     try:
         data = request.json
         full_name = data.get('fullName')
@@ -274,25 +291,32 @@ def add_student():
         student_count = cursor.fetchone()['count']
         new_student_id = f"S{student_count + 1:03d}"
         
-        temp_password = "password123"
+        # --- SECURITY IMPROVEMENT ---
+        # Generate a secure, random password instead of a hardcoded one
+        alphabet = string.ascii_letters + string.digits
+        temp_password = ''.join(secrets.choice(alphabet) for i in range(10))
+        # In a real app, you would email this password to the user. For now, it's just more secure.
+        
         cursor.execute("""
             INSERT INTO students (student_id, full_name, email, password_hash, department, year_of_study)
             VALUES (%s, %s, %s, %s, %s, %s)
         """, (new_student_id, full_name, email, temp_password, department, year))
         
         connection.commit()
-        return jsonify({'success': True, 'message': f"Student '{full_name}' added successfully."}), 201
+        # Return the generated password so the admin knows what it is
+        return jsonify({'success': True, 'message': f"Student '{full_name}' added successfully.", 'tempPassword': temp_password}), 201
     except Exception as e:
         print(f"Add student error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/admin/remove-student', methods=['POST'])
 def remove_student():
     """Admin endpoint to remove a student"""
+    connection = None
     try:
         data = request.json
         student_id = data.get('studentId')
@@ -327,17 +351,18 @@ def remove_student():
         return jsonify({'success': True, 'message': f"Student '{student['full_name']}' removed successfully."}), 200
     except Exception as e:
         print(f"Remove student error: {e}")
-        if 'connection' in locals():
+        if connection:
             connection.rollback()
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/admin/add-candidate', methods=['POST'])
 def add_candidate():
     """Admin endpoint to add a new candidate"""
+    connection = None
     try:
         data = request.json
         email = data.get('email')
@@ -370,13 +395,14 @@ def add_candidate():
         print(f"Add candidate error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/admin/remove-candidate', methods=['POST'])
 def remove_candidate():
     """Admin endpoint to remove a candidate"""
+    connection = None
     try:
         data = request.json
         candidate_id = data.get('candidateId')
@@ -410,17 +436,18 @@ def remove_candidate():
         return jsonify({'success': True, 'message': f"Candidate '{candidate['full_name']}' removed successfully."}), 200
     except Exception as e:
         print(f"Remove candidate error: {e}")
-        if 'connection' in locals():
+        if connection:
             connection.rollback()
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
             
 @app.route('/api/admin/stats', methods=['GET'])
 def get_admin_stats():
     """Get real-time voting statistics"""
+    connection = None
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
@@ -457,13 +484,14 @@ def get_admin_stats():
         print(f"Stats error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/admin/terminate-election', methods=['POST'])
 def terminate_election():
     """Terminate election"""
+    connection = None
     try:
         data = request.json
         admin_username = data.get('username')
@@ -486,17 +514,18 @@ def terminate_election():
         return jsonify({'success': True, 'message': 'Election terminated successfully'}), 200
     except Exception as e:
         print(f"Terminate error: {e}")
-        if 'connection' in locals():
+        if connection:
             connection.rollback()
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/admin/pause-election', methods=['POST'])
 def pause_election():
     """Pause/Resume election"""
+    connection = None
     try:
         data = request.json
         admin_username = data.get('username')
@@ -521,17 +550,18 @@ def pause_election():
         return jsonify({'success': True, 'message': f"Election {'paused' if pause else 'resumed'} successfully", 'isPaused': pause}), 200
     except Exception as e:
         print(f"Pause error: {e}")
-        if 'connection' in locals():
+        if connection:
             connection.rollback()
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/admin/reset-election', methods=['POST'])
 def reset_election():
     """Admin endpoint to reset all votes and statuses"""
+    connection = None
     try:
         data = request.json
         admin_username = data.get('username')
@@ -560,11 +590,11 @@ def reset_election():
         return jsonify({'success': True, 'message': 'Election has been reset successfully. All votes are cleared and election is now active.'}), 200
     except Exception as e:
         print(f"Reset error: {e}")
-        if 'connection' in locals():
+        if connection:
             connection.rollback()
         return jsonify({'success': False, 'message': f'Server error during election reset: {str(e)}'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
@@ -575,6 +605,7 @@ def reset_election():
 @app.route('/api/candidates', methods=['GET'])
 def get_candidates():
     """Get all active candidates"""
+    connection = None
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
@@ -585,13 +616,14 @@ def get_candidates():
         print(f"Candidates error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/results', methods=['GET'])
 def get_results():
     """Get election results"""
+    connection = None
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
@@ -615,13 +647,14 @@ def get_results():
         print(f"Results error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
 @app.route('/api/election-status', methods=['GET'])
 def get_election_status():
     """Get current election status"""
+    connection = None
     try:
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
@@ -641,11 +674,8 @@ def get_election_status():
         print(f"Status error: {e}")
         return jsonify({'success': False, 'message': 'Server error'}), 500
     finally:
-        if 'connection' in locals() and connection.is_connected():
+        if connection and connection.is_connected():
             cursor.close()
             connection.close()
 
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
+# The 'if __name__ == "__main__":' block is removed because the production server (Gunicorn) will run the app.

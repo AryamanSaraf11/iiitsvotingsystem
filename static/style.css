@@ -1,0 +1,105 @@
+/* Use a more futuristic font like Space Grotesk */
+body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: linear-gradient(135deg, #1A1A2E 0%, #0F0E17 100%); /* Deep space gradient */
+    color: #E0E0E0; /* Light gray for text */
+    min-height: 100vh;
+}
+
+/* Base styles for the "futuristic" theme */
+.card {
+    background-color: #1A1A2E; /* Dark blue-purple */
+    border: 1px solid #333344;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), 0 0 40px rgba(128, 0, 128, 0.1); /* Subtle neon glow */
+}
+
+.input-field {
+    background-color: #0F0E17; /* Even darker input background */
+    border: 1px solid #4A4A6A;
+    color: #C0C0C0;
+    transition: all 0.2s ease-in-out;
+}
+.input-field:focus {
+    border-color: #00FFFF; /* Cyan focus glow */
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+    background-color: #1A1A2E;
+}
+
+.btn-primary {
+    background-color: #8A2BE2; /* BlueViolet for primary actions */
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+}
+.btn-primary:hover {
+    background-color: #9932CC; /* Darker BlueViolet on hover */
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.6);
+}
+.btn-primary:disabled, .btn-secondary:disabled, .btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background-color: #00CED1; /* DarkCyan for secondary actions */
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 15px rgba(0, 206, 209, 0.4);
+}
+.btn-secondary:hover {
+    background-color: #00BFFF; /* DeepSkyBlue on hover */
+    box-shadow: 0 0 20px rgba(0, 206, 209, 0.6);
+}
+
+.btn-danger {
+    background-color: #FF4500; /* OrangeRed for danger actions */
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
+}
+.btn-danger:hover {
+    background-color: #FF6347; /* Tomato on hover */
+    box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
+}
+
+.nav-link {
+    color: #A0A0FF; /* Lighter purple for nav links */
+    transition: all 0.2s ease-in-out;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 4px;
+}
+.nav-link:hover, .nav-link.active {
+    color: #00FFFF; /* Cyan on hover/active */
+    border-color: #00FFFF;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+}
+
+label.candidate-option {
+    border: 1px solid #333344;
+    transition: all 0.2s ease-in-out;
+}
+label.candidate-option:hover {
+    border-color: #8A2BE2;
+    background-color: #1F1F3D;
+}
+label.candidate-option:has(input[type="radio"]:checked) {
+    background-color: #1F1F3D !important;
+    border-color: #00FFFF !important;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.progress-bar-bg { background-color: #333344; }
+.progress-bar-fill {
+    background-color: #00FFFF;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+}
+
+.view {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hide elements with the 'hidden' class */
+.hidden { display: none !important; }

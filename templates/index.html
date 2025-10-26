@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIITS Student Voting System</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+    <nav class="bg-[#0F0E17] shadow-xl sticky top-0 z-50 border-b border-gray-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 flex items-center">
+                    <svg class="h-10 w-10 text-[#00FFFF] lucide lucide-check-square" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                    <span class="ml-4 text-3xl font-bold text-[#00FFFF] tracking-wider">IIITS Vote</span>
+                </div>
+                <div class="flex space-x-10">
+                    <a href="#" id="nav-login" class="nav-link text-lg font-medium tracking-wide active">Login</a>
+                    <a href="#" id="nav-vote" class="nav-link text-lg font-medium tracking-wide hidden">Vote</a>
+                    <a href="#" id="nav-results" class="nav-link text-lg font-medium tracking-wide hidden">Results</a>
+                    <a href="#" id="nav-admin" class="nav-link text-lg font-medium tracking-wide">Admin</a>
+                    <a href="#" id="nav-logout" class="nav-link text-lg font-medium tracking-wide hidden">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 py-12">
+
+        <div id="loginView" class="view">
+            <div class="card p-10 rounded-xl w-full max-w-md mx-auto">
+                <h2 class="text-4xl font-bold text-center text-[#00FFFF] mb-3 tracking-wide">STUDENT PORTAL</h2>
+                <p class="text-center text-gray-400 mb-10 text-lg">Login with your IIITS Email</p>
+                <form id="loginForm">
+                    <div class="mb-6">
+                        <label for="studentEmail" class="block text-sm font-medium text-gray-300 mb-2">EMAIL ID</label>
+                        <input type="email" id="studentEmail" name="studentEmail" class="input-field w-full px-5 py-3 rounded-lg text-lg outline-none" placeholder="your.name25@iiits.in" required>
+                    </div>
+                    <div class="mb-8">
+                        <label for="password" class="block text-sm font-medium text-gray-300 mb-2">PASSWORD</label>
+                        <input type="password" id="password" name="password" class="input-field w-full px-5 py-3 rounded-lg text-lg outline-none" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required>
+                    </div>
+                    <button type="submit" id="loginButton" class="btn-primary w-full text-white font-semibold py-4 px-6 rounded-lg text-xl tracking-wider">
+                        INITIATE LOGIN
+                    </button>
+                    <p class="text-sm text-center text-gray-500 mt-8">
+                        Administrator access? <a href="#" id="adminLoginLink" class="font-medium text-[#00FFFF] hover:text-[#00BFFF]">Click here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <div id="adminLoginView" class="view">
+            <div class="card p-10 rounded-xl w-full max-w-md mx-auto">
+                <h2 class="text-4xl font-bold text-center text-[#00FFFF] mb-3 tracking-wide">ADMIN PORTAL</h2>
+                <p class="text-center text-gray-400 mb-10 text-lg">Authorized Access Only</p>
+                <form id="adminLoginForm">
+                    <div class="mb-6">
+                        <label for="adminUsername" class="block text-sm font-medium text-gray-300 mb-2">ADMIN USERNAME</label>
+                        <input type="text" id="adminUsername" name="adminUsername" class="input-field w-full px-5 py-3 rounded-lg text-lg outline-none" placeholder="Enter your username" required>
+                    </div>
+                    <div class="mb-8">
+                        <label for="adminPassword" class="block text-sm font-medium text-gray-300 mb-2">PASSWORD</label>
+                        <input type="password" id="adminPassword" name="adminPassword" class="input-field w-full px-5 py-3 rounded-lg text-lg outline-none" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required>
+                    </div>
+                    <button type="submit" id="adminLoginButton" class="btn-danger w-full text-white font-semibold py-4 px-6 rounded-lg text-xl tracking-wider">
+                        ACCESS CONSOLE
+                    </button>
+                    <p class="text-sm text-center text-gray-500 mt-8">
+                        Student access? <a href="#" id="studentLoginLink" class="font-medium text-[#00FFFF] hover:text-[#00BFFF]">Click here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <div id="votingView" class="view">
+            <div class="card p-10 rounded-xl">
+                <div id="voteActive">
+                    <h2 class="text-4xl font-bold text-[#00FFFF] mb-3 tracking-wide">CAST YOUR VOTE</h2>
+                    <p class="text-xl text-gray-400 mb-10">Select your candidate for Student Council.</p>
+                    <form id="voteForm">
+                        <div class="space-y-6" id="candidatesList"></div>
+                        <div class="mt-12 text-center">
+                            <button type="submit" id="submitVoteButton" class="btn-secondary w-full max-w-sm mx-auto text-white font-semibold py-4 px-8 rounded-lg text-xl tracking-wider">
+                                SUBMIT VOTE SECURELY
+                            </button>
+                        </div>
+                        <p id="voteError" class="text-red-500 text-center mt-4 h-6"></p>
+                    </form>
+                </div>
+                <div id="voteCasted" class="text-center py-12">
+                    <svg class="h-32 w-32 text-[#00FFFF] mx-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <h2 class="text-4xl font-bold text-[#00FFFF] mt-8 mb-3 tracking-wide">VOTE RECORDED</h2>
+                    <p class="text-xl text-gray-400 mb-10">Your selection has been securely logged.</p>
+                    <button id="seeResultsButton" class="btn-primary text-white font-semibold py-3 px-8 rounded-lg text-lg">
+                        VIEW ELECTION STATUS
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="voteEndedView" class="view">
+            <div class="card p-10 rounded-xl text-center">
+                <svg class="h-32 w-32 text-[#00FFFF] mx-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <h2 class="text-4xl font-bold text-[#00FFFF] mt-8 mb-3 tracking-wide">ELECTION CONCLUDED</h2>
+                <p class="text-xl text-gray-400 mb-10">The voting period has ended. Thank you for your participation.</p>
+                <button id="seeFinalResultsButton" class="btn-primary text-white font-semibold py-3 px-8 rounded-lg text-lg">
+                    VIEW FINAL RESULTS
+                </button>
+            </div>
+        </div>
+
+        <div id="resultsView" class="view">
+            <div class="card p-10 rounded-xl">
+                <h2 class="text-4xl font-bold text-[#00FFFF] mb-3 tracking-wide">FINAL ELECTION RESULTS</h2>
+                <p class="text-xl text-gray-400 mb-10">IIITS Student Council: Official Tally</p>
+                <div class="space-y-8" id="resultsContainer"></div>
+                <div class="mt-12 pt-8 border-t border-gray-700 text-center">
+                    <h4 class="text-2xl font-semibold text-gray-200 mb-3">TOTAL BALLOTS PROCESSED</h4>
+                    <p id="totalVotesDisplay" class="text-6xl font-bold text-[#00FFFF] tracking-wider mt-4">0</p>
+                    <p class="text-gray-500 mt-4 text-sm">ELECTION STATUS: CONCLUDED</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsPendingView" class="view">
+            <div class="card p-10 rounded-xl text-center">
+                <svg class="h-32 w-32 text-[#00CED1] mx-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                <h2 class="text-4xl font-bold text-[#00FFFF] mt-8 mb-3 tracking-wide">RESULTS PENDING</h2>
+                <p class="text-xl text-gray-400 mb-10">Results will be published once the election is officially closed.</p>
+            </div>
+        </div>
+
+        <div id="adminView" class="view">
+            <div class="card p-10 rounded-xl">
+                <h2 class="text-4xl font-bold text-[#00FFFF] mb-8 tracking-wide">ADMINISTRATION CONSOLE</h2>
+                
+                <div class="mb-8 bg-[#0F0E17] p-8 rounded-lg border border-gray-700">
+                    <h3 class="text-2xl font-semibold text-gray-200 mb-6">REAL-TIME VOTING STATS</h3>
+                    <div id="adminStatsContainer"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-[#0F0E17] p-8 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl font-semibold text-gray-200 mb-4">ELECTION PROTOCOL</h3>
+                        <p class="text-gray-400 mb-6 text-lg">Current Status: <span id="electionStatusText" class="font-bold"></span></p>
+                        <div class="flex space-x-4">
+                            <button id="terminateElectionButton" class="flex-1 btn-danger text-white font-semibold py-3 px-4 rounded-lg text-lg">TERMINATE</button>
+                            <button id="pauseVotingButton" class="flex-1 btn-primary text-white font-semibold py-3 px-4 rounded-lg text-lg">PAUSE</button>
+                            <button id="resetElectionButton" class="flex-1 btn-secondary text-white font-semibold py-3 px-4 rounded-lg text-lg">RESET</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#0F0E17] p-8 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl font-semibold text-gray-200 mb-4">SYSTEM METRICS</h3>
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <span id="adminTotalVotes" class="block text-4xl font-bold text-[#00FFFF]">0</span>
+                                <span class="text-gray-400 text-sm">Total Votes</span>
+                            </div>
+                            <div>
+                                <span id="adminTotalStudents" class="block text-4xl font-bold text-[#8A2BE2]">0</span>
+                                <span class="text-gray-400 text-sm">Registered</span>
+                            </div>
+                            <div>
+                                <span id="adminTurnout" class="block text-4xl font-bold text-[#00CED1]">0%</span>
+                                <span class="text-gray-400 text-sm">Turnout</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                    <div class="bg-[#0F0E17] p-8 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl font-semibold text-gray-200 mb-6">ADD NEW STUDENT</h3>
+                        <form id="addStudentForm" class="space-y-4">
+                            <div>
+                                <label for="newStudentName" class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+                                <input type="text" id="newStudentName" class="input-field w-full px-4 py-2 rounded-lg" required>
+                            </div>
+                            <div>
+                                <label for="newStudentEmail" class="block text-sm font-medium text-gray-300 mb-1">Email ID</label>
+                                <input type="email" id="newStudentEmail" class="input-field w-full px-4 py-2 rounded-lg" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="newStudentDept" class="block text-sm font-medium text-gray-300 mb-1">Department</label>
+                                    <input type="text" id="newStudentDept" class="input-field w-full px-4 py-2 rounded-lg" required>
+                                </div>
+                                <div>
+                                    <label for="newStudentYear" class="block text-sm font-medium text-gray-300 mb-1">Year</label>
+                                    <input type="number" id="newStudentYear" class="input-field w-full px-4 py-2 rounded-lg" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary w-full mt-4 py-3 rounded-lg text-lg">Add Student</button>
+                        </form>
+                    </div>
+
+                    <div class="bg-[#0F0E17] p-8 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl font-semibold text-gray-200 mb-6">ADD NEW CANDIDATE</h3>
+                        <form id="addCandidateForm" class="space-y-4">
+                            <div>
+                                <label for="newCandidateEmail" class="block text-sm font-medium text-gray-300 mb-1">Student's Email ID</label>
+                                <input type="email" id="newCandidateEmail" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Find student by email" required>
+                            </div>
+                            <div>
+                                <label for="newCandidateTagline" class="block text-sm font-medium text-gray-300 mb-1">Campaign Tagline</label>
+                                <input type="text" id="newCandidateTagline" class="input-field w-full px-4 py-2 rounded-lg" placeholder="e.g., 'A vote for progress'" required>
+                            </div>
+                            <button type="submit" class="btn-secondary w-full mt-4 py-3 rounded-lg text-lg">Add Candidate</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Add this section to your index.html in the adminView, after the existing forms -->
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+    <!-- MANAGE STUDENTS -->
+    <div class="bg-[#0F0E17] p-8 rounded-lg border border-gray-700">
+        <h3 class="text-2xl font-semibold text-gray-200 mb-6">MANAGE STUDENTS</h3>
+        <div class="max-h-96 overflow-y-auto space-y-3" id="studentsList">
+            <p class="text-gray-400 text-center py-4">Loading students...</p>
+        </div>
+        <button id="refreshStudents" class="btn-primary w-full mt-4 py-2 rounded-lg text-sm">Refresh List</button>
+    </div>
+
+    <!-- MANAGE CANDIDATES -->
+    <div class="bg-[#0F0E17] p-8 rounded-lg border border-gray-700">
+        <h3 class="text-2xl font-semibold text-gray-200 mb-6">MANAGE CANDIDATES</h3>
+        <div class="max-h-96 overflow-y-auto space-y-3" id="candidatesListManage">
+            <p class="text-gray-400 text-center py-4">Loading candidates...</p>
+        </div>
+        <button id="refreshCandidates" class="btn-secondary w-full mt-4 py-2 rounded-lg text-sm">Refresh List</button>
+    </div>
+</div>
+
+<!-- Remove Student Confirmation Modal -->
+<div id="removeStudentModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+    <div class="card p-8 rounded-xl max-w-md mx-4">
+        <h3 class="text-2xl font-bold text-[#FF4500] mb-4">CONFIRM STUDENT REMOVAL</h3>
+        <p class="text-gray-300 mb-2">Are you sure you want to remove this student?</p>
+        <p class="text-[#00FFFF] font-semibold mb-6" id="removeStudentName"></p>
+        <div class="flex space-x-4">
+            <button id="cancelRemoveStudent" class="flex-1 btn-primary">CANCEL</button>
+            <button id="confirmRemoveStudent" class="flex-1 btn-danger">REMOVE</button>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Candidate Confirmation Modal -->
+<div id="removeCandidateModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+    <div class="card p-8 rounded-xl max-w-md mx-4">
+        <h3 class="text-2xl font-bold text-[#FF4500] mb-4">CONFIRM CANDIDATE REMOVAL</h3>
+        <p class="text-gray-300 mb-2">Are you sure you want to remove this candidate?</p>
+        <p class="text-[#00FFFF] font-semibold mb-6" id="removeCandidateName"></p>
+        <div class="flex space-x-4">
+            <button id="cancelRemoveCandidate" class="flex-1 btn-primary">CANCEL</button>
+            <button id="confirmRemoveCandidate" class="flex-1 btn-danger">REMOVE</button>
+        </div>
+    </div>
+</div>
+        </div>
+    </main>
+
+    <div id="terminateModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="card p-8 rounded-xl max-w-md mx-4">
+            <h3 class="text-2xl font-bold text-[#FF4500] mb-4">CONFIRM TERMINATION</h3>
+            <p class="text-gray-300 mb-6">Are you sure? This will terminate the election and publish the results. This action cannot be undone.</p>
+            <div class="flex space-x-4">
+                <button id="cancelTerminateButton" class="flex-1 btn-primary">CANCEL</button>
+                <button id="confirmTerminateButton" class="flex-1 btn-danger">TERMINATE</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="resetModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="card p-8 rounded-xl max-w-md mx-4">
+            <h3 class="text-2xl font-bold text-[#FFA500] mb-4">CONFIRM ELECTION RESET</h3>
+            <p class="text-gray-300 mb-6">Are you sure? This will delete ALL votes and reset the election to its starting state. This action cannot be undone.</p>
+            <div class="flex space-x-4">
+                <button id="cancelResetButton" class="flex-1 btn-primary">CANCEL</button>
+                <button id="confirmResetButton" class="flex-1 btn-danger">YES, RESET ELECTION</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
